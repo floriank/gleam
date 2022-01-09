@@ -3287,3 +3287,24 @@ fn list_spread_pattern() {
 "
     );
 }
+
+// https://github.com/gleam-lang/gleam/issues/1431
+#[test]
+fn rewrite_special_case_for_function_captures() {
+    assert_format_rewrite!(
+        r#"fn main() {
+  let decoder = dynamic.any(
+    _,
+    [
+      fn(x) { result.map(dynamic.int(x), fn(_) { "int" }) },
+      fn(x) { result.map(dynamic.float(x), fn(_) { "float" }) },
+    ],
+  )
+}"#, r#"fn main() {
+  let decoder = dynamic.any(_, [
+    fn(x) { result.map(dynamic.int(x), fn(_) { "int" }) },
+    fn(x) { result.map(dynamic.float(x), fn(_) { "float" }) },
+  ])
+}"#
+    );
+}
